@@ -22,10 +22,14 @@ void function() {
   var resolveString = function(what, config) {
     return new config.promise(function(resolve) {
       if(typeof what === 'function') {
-         resolve(resolveThenable(what(), index));
+        resolveString(what(), config).then(function(e){
+          resolve(e);
+        });
       } else if(what && typeof what.then === 'function') {
-        what.then(function(arg) {
-          resolve(resolveThenable(what));
+        what.then(function(what) {
+          resolveString(what, config).then(function(e) {
+            resolve(e);
+          });
         });
       } else {
         resolve(what + '');
