@@ -7,7 +7,7 @@
 
 ``` bash
 git clone git@github.com:YanagiEiichi/apisdk
-cd apisdk
+cd apisdk/demo
 bower install
 python -m SimpleHTTPServer 8080
 ```
