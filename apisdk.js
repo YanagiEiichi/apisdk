@@ -18,6 +18,12 @@ void function() {
     return root;
   };
 
+  // Convert callable to normal
+  var resolveCallable = function(what) {
+    if(typeof what !== 'function') return what;
+    return resolveCallable(what());
+  };
+
   // Convert any to string
   var resolveString = function(what, config) {
     return new config.promise(function(resolve) {
@@ -46,15 +52,17 @@ void function() {
     return Array.prototype.join.call(this, '/');
   };
   Node.prototype.getPath = function(config) {
-    var count = this.length;
-    if(count === 0) return '';
     var result = [];
     for(var i = 0; i < this.length; i++) {
-      result.push(resolveString(this[i], config));
+      result[i] = resolveCallable(this[i]);
     }
-    return config.promise.all(result).then(function(path) {
-      return path.join('/');
-    });
+    if(config.promise) {
+      return config.promise.all(result).then(function(path) {
+        return path.join('/');
+      });
+    } else {
+      return resule.join('/');
+    }
   };
   Node.prototype.createChild = function(name) {
     var Node = function() {};
@@ -66,9 +74,15 @@ void function() {
   Node.prototype.buildMethod = function(method, config) {
     var node = this;
     return function(data) {
-      return node.getPath(config).then(function(path) {
+      var what = node.getPath(config);
+      var launch = function(path) {
         return config.http({ method: method, url: path, data: data }); 
-      });
+      };
+      if(typeof what === 'string') {
+        return launch(what);
+      } else {
+        return what.then(launch);
+      }
     };
   };
 
@@ -95,9 +109,28 @@ void function() {
   interface = function(list, config) {
     config = Object(config);
     config.host = String(config.host || '/api'); 
-    if(!config.http) throw new Error("You should set a 'http' to config.");
-    if(!config.promise) throw new Error("You should set a 'promise' to config.");
-    return walker(buildTree(list), new Node(config.host), config);
+    // Check "http" service
+    if(typeof config.http !== 'function') {
+      warn('APISDK: You should provide a "http" service to config, otherwise no request can be launched.')
+      config.http = function(params) {
+        return {
+          then: function(callback) {
+            callback(params);
+            return this;
+          }
+        };
+      };
+    }
+    // Check "promise" service
+    if(typeof config.promise !== 'function') {
+      warn('APISDK: Strongly suggest provide a "promise" service to config, otherwise the asynchronous parameter will not be supported.')
+    }
+    return walker(buildTree(list || []), new Node(config.host), config);
+  };
+
+  // Send a warn
+  var warn = function(message) {
+    console.warn && console.warn(mesage);
   };
 
   // Match loaders
