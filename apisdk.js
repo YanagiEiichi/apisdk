@@ -6,11 +6,10 @@ void function() {
   // Use to convert a API list to a tree struct
   var buildTree = function(list) {
     var root = {};
-    var i, j, temp, path, name, item;
+    var i, j, temp, path, name;
     for(i = 0; i < list.length; i++) {
-      item = list[i].split(/\s+\//);
       temp = root;
-      path = item[1].split('/');
+      path = list[i].split(/\s+/).pop().slice(1).split('/');
       for(j = 0; j < path.length; j++) {
         name = path[j].replace(/^\{.*\}$/, '_');
         temp = temp[name] = Object(temp[name]);
