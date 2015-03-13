@@ -1,5 +1,8 @@
 void function() {
 
+  // Supported methods
+  var METHODS = [ 'GET', 'POST', 'PUT', 'DELETE', 'PATCH' ];
+
   // Use to convert a API list to a tree struct
   var buildTree = function(list) {
     var root = {};
@@ -9,11 +12,9 @@ void function() {
       temp = root;
       path = item[1].split('/');
       for(j = 0; j < path.length; j++) {
-        name = path[j].replace(/^\{.*\}$/, '{}');
+        name = path[j].replace(/^\{.*\}$/, '_');
         temp = temp[name] = Object(temp[name]);
       }
-      if(!('' in temp)) temp[''] = [];
-      temp[''].push(item[0]);
     }
     return root;
   };
@@ -88,19 +89,16 @@ void function() {
 
   // Tree walker
   var walker = function(subtree, node, config) {
-    var chains = subtree['{}'];
-    var current = chains ? function(name) {
+    var chains = subtree._ || {};
+    var current = function(name) {
       return current[name] = walker(chains, node.createChild(name), config);
-    } : {};
+    };
     for(var name in subtree) {
       if(!/^\w+$/.test(name)) continue;
       current[name] = walker(subtree[name], node.createChild(name), config);
     }
-    var methods = subtree[''];
-    if(methods) {
-      for(var i in methods) {
-        current[methods[i].toLowerCase()] = node.buildMethod(methods[i], config);
-      }
+    for(var i in METHODS) {
+      current[METHODS[i].toLowerCase()] = node.buildMethod(METHODS[i], config);
     }
     return current;
   }
@@ -111,7 +109,7 @@ void function() {
     config.host = String(config.host || '/api'); 
     // Check "http" service
     if(typeof config.http !== 'function') {
-      warn('APISDK: You should provide a "http" service to config, otherwise no request can be launched.')
+      warn('APISDK: You should provide a "http" service, otherwise no request can be launched.')
       config.http = function(params) {
         return {
           then: function(callback) {
@@ -123,12 +121,12 @@ void function() {
     }
     // Check "promise" service
     if(typeof config.promise !== 'function') {
-      warn('APISDK: Strongly suggest provide a "promise" service to config, otherwise the asynchronous parameter will not be supported.')
+      warn('APISDK: Strongly suggest to provide a "promise" service, otherwise the asynchronous parameter will not be supported.')
     }
     return walker(buildTree(list || []), new Node(config.host), config);
   };
 
-  // Send a warn
+  // Send a warning
   var warn = function(message) {
     console.warn && console.warn(mesage);
   };
