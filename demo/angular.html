@@ -1,0 +1,35 @@
+<html ng-app="api">
+<script src="../bower_components/angular/angular.js"></script>
+<script src="../apisdk.js"></script>
+<script>
+angular.module('api', ['APISDK']).factory('api', ['$q', '$http', 'APISDK', function($q, $http, APISDK) {
+  var list = [
+    'GET /articles',
+    'POST /articles',
+    'GET /articles/{article_id}',
+    'PUT /articles/{article_id}',
+    'DELETE /articles/{article_id}',
+    'GET /articles/{article_id}/comments',
+    'POST /articles/{article_id}/comments',
+    'GET /articles/{article_id}/comments/{comment_id}',
+    'PUT /articles/{article_id}/comments/{comment_id}',
+    'DELETE /articles/{article_id}/comments/{comment_id}'
+  ];
+  var promise = function(resolver) {
+    var def = $q.defer(); 
+    resolver(def.resolve, def.reject);
+    return def.promise;
+  };
+  promise.all = $q.all;
+  return new APISDK(list, {
+    host: '/api',
+    http: $http,
+    promise: promise
+  });
+}]).run(['api', function(api) {
+  api.articles(123).comments(456).get().then(function(e) {
+    console.log(e);
+  });
+}]);
+</script>
+

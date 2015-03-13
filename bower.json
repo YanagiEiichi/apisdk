@@ -1,0 +1,27 @@
+{
+  "name": "apisdk",
+  "main": "apisdk.js",
+  "version": "0.0.0",
+  "authors": [
+    "YanagiEiichi <admin@web-tinker.com>"
+  ],
+  "description": "Build a SDK from API document",
+  "keywords": [
+    "api",
+    "restapi",
+    "sdk"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.3",
+    "angular": "~1.3.14"
+  }
+}
+
