@@ -30,9 +30,27 @@ var api = new APISDK(list, {
   http: $.ajax,
   promise: promise
 });
+</script>
 
-api.articles(123).comments(456).get().then(function(e) {
-  console.log(e);
+<button id="increase">increase</button>
+<script>
+var inc = 0;
+// Test normal parameter
+var article = api.articles(123);
+// Test dynamic parameter
+var nextComment = article.comments(function(){
+  // Test asynchronous parameter
+  return new $.Deferred(function(def) {
+    setTimeout(function() {
+      def.resolve(inc++);
+    }, 500);
+  });
+});
+
+$('#increase').click(function() {
+  nextComment.get().then(function(e) {
+    console.log(e);
+  });
 });
 </script>
 

@@ -1,8 +1,8 @@
-<html ng-app="api">
+<html ng-app="demo">
 <script src="bower_components/angular/angular.js"></script>
 <script src="../apisdk.js"></script>
 <script>
-angular.module('api', ['APISDK']).factory('api', ['$q', '$http', 'APISDK', function($q, $http, APISDK) {
+angular.module('demo', ['APISDK']).factory('api', ['$q', '$http', 'APISDK', function($q, $http, APISDK) {
   var list = [
     'GET /articles',
     'POST /articles',
@@ -26,10 +26,28 @@ angular.module('api', ['APISDK']).factory('api', ['$q', '$http', 'APISDK', funct
     http: $http,
     promise: promise
   });
-}]).run(['api', function(api) {
-  api.articles(123).comments(456).get().then(function(e) {
-    console.log(e);
+}]);
+</script>
+<button ng-click="increase()">increase</button>
+<script>
+angular.module('demo').run(['$rootScope', '$q', 'api', function($rootScope, $q, api) {
+  var inc = 0;
+  // Test normal parameter
+  var article = api.articles(123);
+  // Test dynamic parameter
+  var nextComment = article.comments(function(){
+    // Test asynchronous parameter
+    var defer = $q.defer();
+    setTimeout(function() {
+      defer.resolve(inc++);
+    }, 500);
+    return defer.promise;
   });
+  $rootScope.increase = function() {
+    nextComment.get().then(function(e) {
+      console.log(e);
+    });
+  };
 }]);
 </script>
 
