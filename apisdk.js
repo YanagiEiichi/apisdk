@@ -61,7 +61,7 @@ void function() {
         return path.join('/');
       });
     } else {
-      return resule.join('/');
+      return result.join('/');
     }
   };
   Node.prototype.createChild = function(name) {
@@ -127,7 +127,7 @@ void function() {
 
   // Send a warning
   var warn = function(message) {
-    console.warn && console.warn(mesage);
+    console.warn && console.warn(message);
   };
 
   // Match loaders
