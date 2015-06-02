@@ -38,7 +38,7 @@ api.articles(asyncParam).get();
 
 ### Friendly with RESTful API
 
-```javascript
+```
 /**
  * GET /users/{user_id}/
  * GET /users/{user_id}/orders

@@ -76,7 +76,7 @@ void function() {
     return function(data) {
       var what = node.getPath(config);
       var launch = function(path) {
-        return config.http({ method: method, url: path, data: data }); 
+        return config.http({ method: method, url: path, data: data });
       };
       if(typeof what === 'string') {
         return launch(what);
@@ -103,8 +103,9 @@ void function() {
   }
 
   // Interface
-  interface = function(list, config) {
+  var APISDK = function(list, config) {
     config = Object(config);
+    config.promise = config.promise || window.Promise;
     config.host = String(config.host || '/api'); 
     // Check "http" service
     if(typeof config.http !== 'function') {
@@ -127,19 +128,19 @@ void function() {
 
   // Send a warning
   var warn = function(message) {
-    console.warn && console.warn(message);
+    window.console && console.warn && console.warn(message);
   };
 
   // Match loaders
   if(this.define && this.define.amd) {
     // For AMD
-    define(function() { return interface; }); 
+    define(function() { return APISDK; }); 
   } else if(this.angular) {
     // For angular
-    angular.module('APISDK', []).factory('APISDK', function() { return interface; });
+    angular.module('APISDK', []).factory('APISDK', function() { return APISDK; });
   } else {
     // For global
-    APISDK = interface;
+    new Function('return this')().APISDK = APISDK;
   }
 
 }();
