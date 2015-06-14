@@ -1,7 +1,7 @@
 <script src="../apisdk.js"></script>
 <script src="bower_components/jquery/dist/jquery.js"></script>
 <script>
-var list = [
+var schema = [
   'GET /articles',
   'POST /articles',
   'GET /articles/{article_id}',
@@ -17,7 +17,7 @@ var list = [
 var promise = function(resolver) {
   return new $.Deferred(function(def) {
     resolver(def.resolve, def.reject);
-  }).promise(); 
+  }).promise();
 };
 promise.all = function(s) {
   return $.when.apply($, s).then(function(s) {
@@ -25,10 +25,11 @@ promise.all = function(s) {
   });
 };
 
-var api = new APISDK(list, {
+var api = new APISDK({
   host: '/api',
   http: $.ajax,
-  promise: promise
+  promise: promise,
+  schema: schema
 });
 </script>
 

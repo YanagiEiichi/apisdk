@@ -4,13 +4,14 @@
 ### Get Started
 
 ```javascript
-var api = APISDK([
-  // An API definition list here
-  'POST /articles',
-  'GET /articles/{article_id}',
-  'PUT /articles/{article_id}',
-  'DELETE /articles/{article_id}'
-], {
+var api = APISDK({
+  'schema':[
+	  // An API definition list here
+	  'POST /articles',
+	  'GET /articles/{article_id}',
+	  'PUT /articles/{article_id}',
+	  'DELETE /articles/{article_id}'
+	],
   'host': '/api',
   // 'promise' and 'http' MUST be provided
   'promise': Promise,
@@ -22,6 +23,10 @@ var article_id = 123;
 // { "method": "get", "url": "/api/articles/123", "data": { "token": 789 } }
 api.articles(article_id).get({ token: 789 });
 
+// and you can declare specific headers for a http request
+api.arcicles(article_id).get({token: 780}, {Accept: 'application/xml'})
+
+
 // Dynamic parameter is supported
 var inc = 0;
 var nextArticle = api.articles(function() { return inc++; });
@@ -29,6 +34,7 @@ var nextArticle = api.articles(function() { return inc++; });
 nextArticle.get();
 // { "method": "get", "url": "/api/articles/1", "data": null }
 nextArticle.get();
+
 
 // Asynchronous parameter is supportd
 var asyncParam = new Promise(function(resolve){ setTimeout(resolve, 1000, 123); });
