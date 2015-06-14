@@ -12,7 +12,7 @@ void function() {
       path = list[i].split(/\s+/).pop().slice(1).split('/');
       for(j = 0; j < path.length; j++) {
         name = path[j].replace(/^\{.*\}$/, '_');
-        temp = temp[name] = Object(temp[name]);
+        temp = temp[name] = {};
       }
     }
     return root;
@@ -73,10 +73,11 @@ void function() {
   };
   Node.prototype.buildMethod = function(method, config) {
     var node = this;
-    return function(data) {
+    return function(data, headers) {
+      headers = headers || {};
       var what = node.getPath(config);
       var launch = function(path) {
-        return config.http({ method: method, url: path, data: data }); 
+        return config.http({ method: method, url: path, data: data, headers: headers });
       };
       if(typeof what === 'string') {
         return launch(what);
@@ -86,11 +87,17 @@ void function() {
     };
   };
 
+  var dynamicNodePrefix = 'apisdk_dynamic_node_';
   // Tree walker
   var walker = function(subtree, node, config) {
     var chains = subtree._ || {};
     var current = function(name) {
-      return current[name] = walker(chains, node.createChild(name), config);
+      // cache result first, then use prefix to void name conflict.
+      var nodeName = dynamicNodePrefix + name;
+      if (current.hasOwnProperty(nodeName)){
+        return current[nodeName];
+      }
+      return current[nodeName] = walker(chains, node.createChild(nodeName), config);
     };
     for(var name in subtree) {
       if(!/^\w+$/.test(name)) continue;
@@ -102,10 +109,10 @@ void function() {
     return current;
   }
 
-  // Interface
-  interface = function(list, config) {
+  // export module
+  var module = function(config) {
     config = Object(config);
-    config.host = String(config.host || '/api'); 
+    config.host = String(config.host || '/api');
     // Check "http" service
     if(typeof config.http !== 'function') {
       warn('APISDK: You should provide a "http" service, otherwise no request can be launched.')
@@ -122,7 +129,7 @@ void function() {
     if(typeof config.promise !== 'function') {
       warn('APISDK: Strongly suggest to provide a "promise" service, otherwise the asynchronous parameter will not be supported.')
     }
-    return walker(buildTree(list || []), new Node(config.host), config);
+    return walker(buildTree(config.schema || []), new Node(config.host), config);
   };
 
   // Send a warning
@@ -133,13 +140,13 @@ void function() {
   // Match loaders
   if(this.define && this.define.amd) {
     // For AMD
-    define(function() { return interface; }); 
+    define(function() { return module });
   } else if(this.angular) {
     // For angular
-    angular.module('APISDK', []).factory('APISDK', function() { return interface; });
+    angular.module('APISDK', []).factory('APISDK', function() { return module });
   } else {
     // For global
-    APISDK = interface;
+    APISDK = module;
   }
 
 }();

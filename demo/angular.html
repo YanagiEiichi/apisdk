@@ -3,7 +3,7 @@
 <script src="../apisdk.js"></script>
 <script>
 angular.module('demo', ['APISDK']).factory('api', ['$q', '$http', 'APISDK', function($q, $http, APISDK) {
-  var list = [
+  var schema = [
     'GET /articles',
     'POST /articles',
     'GET /articles/{article_id}',
@@ -16,15 +16,16 @@ angular.module('demo', ['APISDK']).factory('api', ['$q', '$http', 'APISDK', func
     'DELETE /articles/{article_id}/comments/{comment_id}'
   ];
   var promise = function(resolver) {
-    var def = $q.defer(); 
+    var def = $q.defer();
     resolver(def.resolve, def.reject);
     return def.promise;
   };
   promise.all = $q.all;
-  return new APISDK(list, {
+  return new APISDK({
     host: '/api',
     http: $http,
-    promise: promise
+    promise: promise,
+    schema: schema
   });
 }]);
 </script>

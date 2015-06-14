@@ -4,13 +4,14 @@
 ### Get Started
 
 ```javascript
-var api = APISDK([
-  // An API definition list here
-  'POST /articles',
-  'GET /articles/{article_id}',
-  'PUT /articles/{article_id}',
-  'DELETE /articles/{article_id}'
-], {
+var api = APISDK({
+  'schema':[
+	  // An API definition list here
+	  'POST /articles',
+	  'GET /articles/{article_id}',
+	  'PUT /articles/{article_id}',
+	  'DELETE /articles/{article_id}'
+	],
   'host': '/api',
   // 'promise' and 'http' MUST be provided
   'promise': Promise,
