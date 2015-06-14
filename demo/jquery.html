@@ -25,11 +25,11 @@ promise.all = function(s) {
   });
 };
 
-var api = new APISDK(list, {
+var api = new APISDK({
   host: '/api',
   http: $.ajax,
   promise: promise,
-  schema: scheam
+  schema: schema
 });
 </script>
 
