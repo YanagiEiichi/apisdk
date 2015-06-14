@@ -97,7 +97,7 @@ void function() {
       if (current.hasOwnProperty(nodeName)){
         return current[nodeName];
       }
-      return current[nodeName] = walker(chains, node.createChild(nodeName), config);
+      return current[nodeName] = walker(chains, node.createChild(name), config);
     };
     for(var name in subtree) {
       if(!/^\w+$/.test(name)) continue;
