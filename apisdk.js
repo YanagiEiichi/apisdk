@@ -11,7 +11,7 @@ void function() {
       temp = root;
       path = list[i].split(/\s+/).pop().slice(1).split('/');
       for(j = 0; j < path.length; j++) {
-        name = path[j].replace(/^\{.*\}$/, '_');
+        name = path[j].replace(/^(?:\{.*\}|:[\w-]*)$/, '_');
         temp = temp[name] = Object(temp[name]);
       }
     }
