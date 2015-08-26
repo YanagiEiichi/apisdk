@@ -4,7 +4,7 @@
 ### Get Started
 
 ```javascript
-var api = APISDK([
+var api = new APISDK([
   // An API definition list here
   'POST /articles',
   'GET /articles/{article_id}',

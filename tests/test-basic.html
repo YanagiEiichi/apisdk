@@ -1,0 +1,49 @@
+<script src="../apisdk.js"></script>
+<script src="bower_components/tester/tester.js"></script>
+<script>
+
+var api = new APISDK([
+  // An API definition list here
+  'POST /articles',
+  'GET /articles/{article_id}',
+  'PUT /articles/{article_id}',
+  'DELETE /articles/{article_id}'
+], {
+  'host': '/api',
+  'promise': Promise,
+  'http': function(request) {
+    Tester.log(JSON.stringify(request));
+    expection.answer(JSON.stringify(request));
+  }
+});
+
+var expection = new Tester.Expection(
+  '{"method":"GET","url":"/api/articles/3","data":233}',
+  '{"method":"POST","url":"/api/articles/3"}',
+  '{"method":"DELETE","url":"/api/articles/3","data":true}',
+  '{"method":"PUT","url":"/api/articles/3","data":{"a":1,"b":2}}',
+  '{"method":"PATCH","url":"/api/articles/3","data":[1,2,3]}'
+);
+
+expection.then(function() {
+  Tester.feedback(true);
+}, function() {
+  Tester.feedback(false);
+});
+
+var article3 = api.articles(3);
+article3.get(233);
+
+// Test POST method
+article3.post();
+
+// Test DELETE method
+article3['delete'](true);
+
+// Test PUT method
+article3.put({ a: 1, b: 2 });
+
+// Test PATCH method
+article3.patch([ 1, 2, 3 ]);
+
+</script>
