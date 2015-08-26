@@ -1,7 +1,7 @@
 {
   "name": "apisdk",
   "main": "apisdk.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "authors": [
     "YanagiEiichi <admin@web-tinker.com>"
   ],

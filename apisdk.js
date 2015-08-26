@@ -134,7 +134,7 @@ void function() {
   // Match loaders
   if(this.define && this.define.amd) {
     // For AMD
-    define(function() { return APISDK; }); 
+    define('APISDK', function() { return APISDK; });
   } else if(this.angular) {
     // For angular
     angular.module('APISDK', []).factory('APISDK', function() { return APISDK; });
