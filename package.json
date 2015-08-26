@@ -1,0 +1,18 @@
+{
+  "name": "apisdk",
+  "version": "0.0.1",
+  "main": "apisdk.js",
+  "directories": {
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YanagiEiichi/apisdk.git"
+  },
+  "author": "YanagiEiichi",
+  "license": "MIC",
+  "bugs": {
+    "url": "https://github.com/YanagiEiichi/apisdk/issues"
+  },
+  "homepage": "https://github.com/YanagiEiichi/apisdk#readme"
+}
