@@ -1,12 +1,13 @@
 void function() {
 
-  // Path node internal class
-  var Node = function(name, config) {
+
+  var Part = function(name, config) {
     if(config) this.config = config;
     this.push(name);
   };
+
   // To convert a API list to a raw tree struct
-  Node.listToRawTree = function(list) {
+  Part.listToRawTree = function(list) {
     var root = {};
     var i, j, k, path, methods, name;
     for(i = 0; i < list.length; i++) {
@@ -24,10 +25,12 @@ void function() {
     }
     return root;
   };
+
   // It's prototype is an array, every part of API path is an array item
-  Node.prototype = [];
+  Part.prototype = [];
+
   // Return the actual API path
-  Node.prototype.getPath = function() {
+  Part.prototype.getPath = function() {
     var result = [];
     for(var i = 0; i < this.length; i++) {
       // Resolve function result
@@ -44,16 +47,18 @@ void function() {
       return result.join('/');
     }
   };
+
   // Create child node that inherit from current node
-  Node.prototype.createChild = function(name) {
-    var Node = function() {};
-    Node.prototype = this;
-    var node = new Node();
+  Part.prototype.createChild = function(name) {
+    var Part = function() {};
+    Part.prototype = this;
+    var node = new Part();
     node.push(name);
     return node;
   };
+
   // Create a callable HTTP method as property of current node
-  Node.prototype.buildMethod = function(method) {
+  Part.prototype.buildMethod = function(method) {
     var node = this;
     return function(data) {
       var what = node.getPath();
@@ -67,8 +72,9 @@ void function() {
       }
     };
   };
+
   // Load API path data into current node from a raw tree and return a handler
-  Node.prototype.loadRawTree = function(rawTree) {
+  Part.prototype.loadRawTree = function(rawTree) {
     var rawSubTree = rawTree['#rawSubTree'] || {};
     var methods = rawTree['#methods'] || [];
     var handler = function(name) {
@@ -83,6 +89,7 @@ void function() {
     }
     return handler;
   };
+
 
   // Interface
   var APISDK = function(list, config) {
@@ -105,13 +112,15 @@ void function() {
     if(typeof config.promise !== 'function') {
       warn('APISDK: Strongly suggest to provide a "promise" service, otherwise the asynchronous parameter will not be supported.')
     }
-    return new Node(config.host, config).loadRawTree(Node.listToRawTree(list));
+    return new Part(config.host, config).loadRawTree(Part.listToRawTree(list));
   };
+
 
   // Send a warning
   var warn = function(message) {
     window.console && console.warn && console.warn(message);
   };
+
 
   // Match loaders
   if(this.define && this.define.amd) {
