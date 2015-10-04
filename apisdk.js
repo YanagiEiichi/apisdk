@@ -48,20 +48,21 @@ void function() {
   };
 
   // Path node internal constructor
-  var Node = function(name) {
+  var Node = function(name, config) {
+    if(config) this.config = config;
     this.push(name);
   };
   Node.prototype = [];
   Node.prototype.toString = function() {
     return Array.prototype.join.call(this, '/');
   };
-  Node.prototype.getPath = function(config) {
+  Node.prototype.getPath = function() {
     var result = [];
     for(var i = 0; i < this.length; i++) {
       result[i] = resolveCallable(this[i]);
     }
-    if(config.promise) {
-      return config.promise.all(result).then(function(path) {
+    if(this.config.promise) {
+      return this.config.promise.all(result).then(function(path) {
         return path.join('/');
       });
     } else {
@@ -75,12 +76,12 @@ void function() {
     node.push(name);
     return node;
   };
-  Node.prototype.buildMethod = function(method, config) {
+  Node.prototype.buildMethod = function(method) {
     var node = this;
     return function(data) {
-      var what = node.getPath(config);
+      var what = node.getPath();
       var launch = function(path) {
-        return config.http({ method: method, url: path, data: data });
+        return node.config.http({ method: method, url: path, data: data });
       };
       if(typeof what === 'string') {
         return launch(what);
@@ -89,23 +90,21 @@ void function() {
       }
     };
   };
-
-  // Tree walker
-  var walker = function(subtree, node, config) {
-    var chains = subtree['#chains'] || {};
-    var methods = subtree['#methods'] || [];
+  Node.prototype.loadTree = function(tree) {
+    var chains = tree['#chains'] || {};
+    var methods = tree['#methods'] || [];
     var current = function(name) {
-      return current[name] = walker(chains, node.createChild(name), config);
+      return current[name] = this.createChild(name).loadTree(chains);
     };
-    for(var name in subtree) {
+    for(var name in tree) {
       if(name.charAt(0) === '#') continue;
-      current[name] = walker(subtree[name], node.createChild(name), config);
+      current[name] = this.createChild(name).loadTree(tree[name]);
     }
     for(var i = 0; i < methods.length; i++) {
-      current[methods[i].toLowerCase()] = node.buildMethod(methods[i], config);
+      current[methods[i].toLowerCase()] = this.buildMethod(methods[i]);
     }
     return current;
-  }
+  };
 
   // Interface
   var APISDK = function(list, config) {
@@ -128,7 +127,7 @@ void function() {
     if(typeof config.promise !== 'function') {
       warn('APISDK: Strongly suggest to provide a "promise" service, otherwise the asynchronous parameter will not be supported.')
     }
-    return walker(buildTree(list || []), new Node(config.host), config);
+    return new Node(config.host, config).loadTree(buildTree(list));
   };
 
   // Send a warning
