@@ -1,27 +1,5 @@
 void function() {
 
-  // Supported methods
-  var METHODS = [ 'GET', 'POST', 'PUT', 'DELETE', 'PATCH' ];
-
-  // Use to convert a API list to a tree struct
-  var buildTree = function(list) {
-    var root = {};
-    var i, j, k, path, methods, name;
-    for(i = 0; i < list.length; i++) {
-      if(!/^(\S+)\s+\/(\S+)$/.test(list[i])) {
-        throw new Error('What\'s the fucking api defintion "' + list[i] + '"?');
-      }
-      methods = RegExp.$1;
-      path = RegExp.$2.split('/');
-      for(k = root, j = 0; j < path.length; j++) {
-        name = path[j].replace(/^(?:([{<(\[]).*\1|:[\w-]*)$/, '#chains');
-        k = k[name] = Object(k[name]);
-      }
-      k['#methods'] = ~methods.indexOf('*') ? METHODS : methods.match(/\w+/g);
-    }
-    return root;
-  };
-
   // Convert callable to normal
   var resolveCallable = function(what) {
     if(typeof what !== 'function') return what;
@@ -51,6 +29,25 @@ void function() {
   var Node = function(name, config) {
     if(config) this.config = config;
     this.push(name);
+  };
+  // To convert a API list to a raw tree struct
+  Node.listToRawTree = function(list) {
+    var root = {};
+    var i, j, k, path, methods, name;
+    for(i = 0; i < list.length; i++) {
+      if(!/^(\S+)\s+\/(\S+)$/.test(list[i])) {
+        throw new Error('What\'s the fucking api defintion "' + list[i] + '"?');
+      }
+      methods = RegExp.$1;
+      path = RegExp.$2.split('/');
+      for(k = root, j = 0; j < path.length; j++) {
+        // Supported formats: {xxx} [xxx] (xxx) <xxx> :xxx *
+        name = path[j].replace(/^(?:([{\[(<]).*\1|:[\w-]*|\*)$/, '#rawSubTree');
+        k = k[name] = Object(k[name]);
+      }
+      k['#methods'] = ~methods.indexOf('*') ? [ 'GET', 'POST', 'PUT', 'DELETE', 'PATCH' ] : methods.match(/\w+/g);
+    }
+    return root;
   };
   Node.prototype = [];
   Node.prototype.toString = function() {
@@ -90,20 +87,20 @@ void function() {
       }
     };
   };
-  Node.prototype.loadTree = function(tree) {
-    var chains = tree['#chains'] || {};
-    var methods = tree['#methods'] || [];
-    var current = function(name) {
-      return current[name] = this.createChild(name).loadTree(chains);
+  Node.prototype.loadRawTree = function(rawTree) {
+    var rawSubTree = rawTree['#rawSubTree'] || {};
+    var methods = rawTree['#methods'] || [];
+    var handler = function(name) {
+      return handler[name] = this.createChild(name).loadRawTree(rawSubTree);
     };
-    for(var name in tree) {
+    for(var name in rawTree) {
       if(name.charAt(0) === '#') continue;
-      current[name] = this.createChild(name).loadTree(tree[name]);
+      handler[name] = this.createChild(name).loadRawTree(rawTree[name]);
     }
     for(var i = 0; i < methods.length; i++) {
-      current[methods[i].toLowerCase()] = this.buildMethod(methods[i]);
+      handler[methods[i].toLowerCase()] = this.buildMethod(methods[i]);
     }
-    return current;
+    return handler;
   };
 
   // Interface
@@ -127,7 +124,7 @@ void function() {
     if(typeof config.promise !== 'function') {
       warn('APISDK: Strongly suggest to provide a "promise" service, otherwise the asynchronous parameter will not be supported.')
     }
-    return new Node(config.host, config).loadTree(buildTree(list));
+    return new Node(config.host, config).loadRawTree(Node.listToRawTree(list));
   };
 
   // Send a warning
