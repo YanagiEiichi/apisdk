@@ -1,12 +1,6 @@
 void function() {
 
-  // Convert callable to normal
-  var resolveCallable = function(what) {
-    if(typeof what !== 'function') return what;
-    return resolveCallable(what());
-  };
-
-  // Path node internal constructor
+  // Path node internal class
   var Node = function(name, config) {
     if(config) this.config = config;
     this.push(name);
@@ -30,14 +24,17 @@ void function() {
     }
     return root;
   };
+  // It's prototype is an array, every part of API path is an array item
   Node.prototype = [];
-  Node.prototype.toString = function() {
-    return Array.prototype.join.call(this, '/');
-  };
+  // Return the actual API path
   Node.prototype.getPath = function() {
     var result = [];
     for(var i = 0; i < this.length; i++) {
-      result[i] = resolveCallable(this[i]);
+      // Resolve function result
+      result[i] = function callee(what) {
+        if(typeof what !== 'function') return what;
+        return callee(what());
+      }(this[i]);
     }
     if(this.config.promise) {
       return this.config.promise.all(result).then(function(path) {
@@ -47,6 +44,7 @@ void function() {
       return result.join('/');
     }
   };
+  // Create child node that inherit from current node
   Node.prototype.createChild = function(name) {
     var Node = function() {};
     Node.prototype = this;
@@ -54,6 +52,7 @@ void function() {
     node.push(name);
     return node;
   };
+  // Create a callable HTTP method as property of current node
   Node.prototype.buildMethod = function(method) {
     var node = this;
     return function(data) {
@@ -68,6 +67,7 @@ void function() {
       }
     };
   };
+  // Load API path data into current node from a raw tree and return a handler
   Node.prototype.loadRawTree = function(rawTree) {
     var rawSubTree = rawTree['#rawSubTree'] || {};
     var methods = rawTree['#methods'] || [];
