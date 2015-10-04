@@ -1,0 +1,15 @@
+<script src="../apisdk.js"></script>
+<script src="bower_components/tester/tester.js"></script>
+<script>
+var api = new Apisdk([
+  'GET /test'
+], {
+  'host': '/api',
+  'promise': Promise,
+  'http': function() {}
+});
+
+Tester.assert(typeof api.test.get === 'function');
+Tester.assert(typeof api.test.post === 'undefined');
+Tester.feedback(true);
+</script>

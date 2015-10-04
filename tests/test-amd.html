@@ -1,0 +1,10 @@
+<script src="bower_components/tester/tester.js"></script>
+<script src="bower_components/requirejs/require.js"></script>
+<script src="../apisdk.js"></script>
+<script>
+Tester.assert(typeof Apisdk === 'undefined');
+require(['Apisdk'], function(Apisdk) {
+  Tester.assert(typeof Apisdk === 'function');
+  Tester.feedback(true);
+});
+</script>

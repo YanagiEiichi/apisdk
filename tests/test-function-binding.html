@@ -1,0 +1,45 @@
+<script src="../apisdk.js"></script>
+<script src="bower_components/tester/tester.js"></script>
+<script>
+var api = new Apisdk([
+  'GET /a/:id/b',
+  'GET /a/:id/c'
+], {
+  'host': '/api',
+  'promise': Promise,
+  'http': function(request) {
+    Tester.log(JSON.stringify(request));
+    expection.answer(JSON.stringify(request));
+  }
+});
+
+var expection = new Tester.Expection(
+  '{"method":"GET","url":"/api/a/1/c"}',
+  '{"method":"GET","url":"/api/a/2/b"}',
+  '{"method":"GET","url":"/api/a/3/c"}',
+  '{"method":"GET","url":"/api/a/4/c"}',
+  '{"method":"GET","url":"/api/a/5/b"}'
+);
+
+expection.then(function() {
+  Tester.feedback(true);
+}, function() {
+  Tester.feedback(false);
+});
+
+var index = 0;
+var b = api.a(function() { return ++index; }).b;
+var c =  api.a(function() { return ++index; }).c;
+var x =  api.a(function() {
+  return new Promise(function(resolve) {
+    setTimeout(function() {
+      resolve(++index);
+    }, 60);
+  });
+});
+x.c.get();
+x.b.get();
+c.get();
+b.get();
+c.get();
+</script>

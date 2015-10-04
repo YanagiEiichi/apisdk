@@ -1,0 +1,54 @@
+<script src="../apisdk.js"></script>
+<script src="bower_components/tester/tester.js"></script>
+<script>
+
+var Config = function(host) {
+  if(host != null) this.host = host;
+};
+Config.prototype = {
+  promise: Promise,
+  http: function(request) {
+    Tester.log(JSON.stringify(request));
+    expection.answer(JSON.stringify(request));
+  }
+};
+
+var config0 = new Config();
+var api0 = new Apisdk(['GET /a'], config0);
+var api1 = new Apisdk(['GET /a'], new Config('/xxx'));
+var api2 = new Apisdk(['GET /a'], new Config('/xxx/'));
+var api3 = new Apisdk(['GET /a'], new Config('/'));
+var api4 = new Apisdk(['GET /a'], new Config(''));
+var api5 = new Apisdk(['GET /a'], new Config('fuck'));
+var api6 = new Apisdk(['GET /a'], new Config('fuck://'));
+
+var expection = new Tester.Expection(
+  '{"method":"GET","url":"/api/a"}',
+  '{"method":"GET","url":"/xxx/a"}',
+  '{"method":"GET","url":"/xxx/a"}',
+  '{"method":"GET","url":"/a"}',
+  '{"method":"GET","url":"/a"}',
+  '{"method":"GET","url":"/fuck/a"}',
+  '{"method":"GET","url":"fuck://a"}',
+  '{"method":"GET","url":"/new/a","data":{"whoami":"api0:config0"}}'
+);
+
+expection.then(function() {
+  Tester.feedback(true);
+}, function() {
+  Tester.feedback(false);
+});
+
+api0.a.get();
+api1.a.get();
+api2.a.get();
+api3.a.get();
+api4.a.get();
+api5.a.get();
+api6.a.get();
+
+setTimeout(function() {
+  config0.host = 'new';
+  api0.a.get({ whoami: 'api0:config0' });
+});
+</script>

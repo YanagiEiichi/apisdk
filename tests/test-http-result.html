@@ -1,0 +1,21 @@
+<script src="../apisdk.js"></script>
+<script src="bower_components/tester/tester.js"></script>
+<script>
+var api = new Apisdk([
+  'POST /a/*'
+], {
+  'host': '/api',
+  'promise': Promise,
+  'http': function(request) {
+    return request;
+  }
+});
+
+api.a('fuck').post().then(function(request) {
+  Tester.assert(request.method === 'POST');
+  Tester.assert(request.url === '/api/a/fuck');
+  Tester.assert('data' in request);
+  Tester.assert(request.data === void 0);
+  Tester.feedback(true);
+});
+</script>

@@ -1,0 +1,23 @@
+<script src="../apisdk.js"></script>
+<script src="bower_components/tester/tester.js"></script>
+<script>
+var api = new Apisdk([
+  // An API definition list here
+  'GET /a/<article_id>',
+  'GET /b/{article_id}',
+  'GET /c/[article_id]',
+  'GET /d/(article_id)',
+  'GET /e/:article_id',
+  'GET /f/*'
+], {
+  'promise': Promise,
+  'http': function() {}
+});
+Tester.assert(typeof api.a().get === 'function');
+Tester.assert(typeof api.b().get === 'function');
+Tester.assert(typeof api.c().get === 'function');
+Tester.assert(typeof api.d().get === 'function');
+Tester.assert(typeof api.e().get === 'function');
+Tester.assert(typeof api.f().get === 'function');
+Tester.feedback(true);
+</script>

@@ -1,0 +1,33 @@
+<script src="../apisdk.js"></script>
+<script src="bower_components/tester/tester.js"></script>
+<script>
+var api = new Apisdk([
+  // An API definition list here
+  'GET,POST /a',
+  '* /b'
+], {
+  'host': '/api',
+  'promise': Promise,
+  'http': function(request) {
+    Tester.log(JSON.stringify(request));
+    expection.answer(JSON.stringify(request));
+  }
+});
+
+var expection = new Tester.Expection(
+  '{"method":"GET","url":"/api/a"}',
+  '{"method":"POST","url":"/api/a"}',
+  '{"method":"PATCH","url":"/api/b"}'
+);
+
+expection.then(function() {
+  Tester.feedback(true);
+}, function() {
+  Tester.feedback(false);
+});
+
+api.a.get();
+api.a.post();
+api.b.patch();
+Tester.assert(typeof api.a.patch === 'undefined');
+</script>
