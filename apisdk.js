@@ -6,14 +6,18 @@ void function() {
   // Use to convert a API list to a tree struct
   var buildTree = function(list) {
     var root = {};
-    var i, j, temp, path, name;
+    var i, j, k, path, methods, name;
     for(i = 0; i < list.length; i++) {
-      temp = root;
-      path = list[i].split(/\s+/).pop().slice(1).split('/');
-      for(j = 0; j < path.length; j++) {
-        name = path[j].replace(/^(?:\{.*\}|:[\w-]*)$/, '_');
-        temp = temp[name] = Object(temp[name]);
+      if(!/^(\S+)\s+\/(\S+)$/.test(list[i])) {
+        throw new Error('What\'s the fucking api defintion "' + list[i] + '"?');
       }
+      methods = RegExp.$1;
+      path = RegExp.$2.split('/');
+      for(k = root, j = 0; j < path.length; j++) {
+        name = path[j].replace(/^(?:([{<(\[]).*\1|:[\w-]*)$/, '#chains');
+        k = k[name] = Object(k[name]);
+      }
+      k['#methods'] = ~methods.indexOf('*') ? METHODS : methods.match(/\w+/g);
     }
     return root;
   };
@@ -88,16 +92,17 @@ void function() {
 
   // Tree walker
   var walker = function(subtree, node, config) {
-    var chains = subtree._ || {};
+    var chains = subtree['#chains'] || {};
+    var methods = subtree['#methods'] || [];
     var current = function(name) {
       return current[name] = walker(chains, node.createChild(name), config);
     };
     for(var name in subtree) {
-      if(!/^\w+$/.test(name)) continue;
+      if(name.charAt(0) === '#') continue;
       current[name] = walker(subtree[name], node.createChild(name), config);
     }
-    for(var i in METHODS) {
-      current[METHODS[i].toLowerCase()] = node.buildMethod(METHODS[i], config);
+    for(var i = 0; i < methods.length; i++) {
+      current[methods[i].toLowerCase()] = node.buildMethod(methods[i], config);
     }
     return current;
   }
