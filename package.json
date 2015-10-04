@@ -1,6 +1,6 @@
 {
   "name": "apisdk",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "main": "apisdk.js",
   "directories": {
     "test": "tests"
