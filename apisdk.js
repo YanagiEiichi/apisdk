@@ -38,7 +38,7 @@ Part.listToRawTree = function(list) {
     path = RegExp.$2.split('/');
     for(k = root, j = 0; j < path.length; j++) {
       // Supported formats: {xxx} [xxx] (xxx) <xxx> :xxx *
-      name = path[j].replace(/^(?:([{\[(<]).*\1|:[\w-]*|\*)$/, '#rawSubTree');
+      name = path[j].replace(/^(?:\{.*\}|\[.*\]|\(.*\)|<.*>|:.*|\*)$/, '#rawSubTree');
       k = k[name] = Object(k[name]);
     }
     methods = methods.replace(/.*\*.*/, 'GET,POST,PUT,DELETE,PATCH');
