@@ -41,7 +41,8 @@ Part.listToRawTree = function(list) {
       name = path[j].replace(/^(?:([{\[(<]).*\1|:[\w-]*|\*)$/, '#rawSubTree');
       k = k[name] = Object(k[name]);
     }
-    k['#methods'] = ~methods.indexOf('*') ? [ 'GET', 'POST', 'PUT', 'DELETE', 'PATCH' ] : methods.match(/\w+/g);
+    methods = methods.replace(/.*\*.*/, 'GET,POST,PUT,DELETE,PATCH');
+    k['#methods'] = (k['#methods'] || []).concat(methods.match(/\w+/g));
   }
   return root;
 };
@@ -95,10 +96,11 @@ Part.prototype.buildMethod = function(method) {
 
 // Load API path data into current node from a raw tree and return a handler
 Part.prototype.loadRawTree = function(rawTree) {
+  var that = this;
   var rawSubTree = rawTree['#rawSubTree'] || {};
   var methods = rawTree['#methods'] || [];
   var handler = function(name) {
-    return handler[name] = this.createChild(name).loadRawTree(rawSubTree);
+    return handler[name] = that.createChild(name).loadRawTree(rawSubTree);
   };
   for(var name in rawTree) {
     if(name.charAt(0) === '#') continue;
