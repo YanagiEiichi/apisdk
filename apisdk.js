@@ -6,25 +6,6 @@ void function() {
     return resolveCallable(what());
   };
 
-  // Convert any to string
-  var resolveString = function(what, config) {
-    return new config.promise(function(resolve) {
-      if(typeof what === 'function') {
-        resolveString(what(), config).then(function(e){
-          resolve(e);
-        });
-      } else if(what && typeof what.then === 'function') {
-        what.then(function(what) {
-          resolveString(what, config).then(function(e) {
-            resolve(e);
-          });
-        });
-      } else {
-        resolve(what + '');
-      }
-    });
-  };
-
   // Path node internal constructor
   var Node = function(name, config) {
     if(config) this.config = config;
