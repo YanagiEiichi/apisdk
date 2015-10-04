@@ -21,9 +21,8 @@ var umd = function(name, component) {
 };
 
 // Internal Part class
-var Part = function(name, config) {
+var Part = function(config) {
   if(config) this.config = config;
-  this.push(name);
 };
 
 // To convert a API list to a raw tree struct
@@ -52,6 +51,7 @@ Part.prototype = [];
 
 // Return the actual API path
 Part.prototype.getPath = function() {
+  var that = this;
   var result = [];
   for(var i = 0; i < this.length; i++) {
     // Resolve function result
@@ -62,11 +62,20 @@ Part.prototype.getPath = function() {
   }
   if(this.config.promise) {
     return this.config.promise.all(result).then(function(path) {
-      return path.join('/');
+      return that.wrapHost(path);
     });
   } else {
-    return result.join('/');
+    return this.wrapHost(result);
   }
+};
+
+// Concat host to path
+Part.prototype.wrapHost = function(path) {
+  var host = this.config.host;
+  host = host == null ? '/api' : host + '';
+  if(host.charAt(host.length - 1) !== '/') host += '/';
+  host = host.replace(/^(?!\w+:\/\/)(?!\/)/, '/');
+  return host + path.join('/');
 };
 
 // Create child node that inherit from current node
@@ -123,7 +132,6 @@ var warn = function(message) {
 var Apisdk = function(list, config) {
   config = Object(config);
   config.promise = config.promise || window.Promise;
-  config.host = String(config.host || '/api');
   // Check "http" service
   if(typeof config.http !== 'function') {
     warn('Apisdk: You should provide a "http" service, otherwise no request can be launched.')
@@ -140,7 +148,7 @@ var Apisdk = function(list, config) {
   if(typeof config.promise !== 'function') {
     warn('Apisdk: Strongly suggest to provide a "promise" service, otherwise the asynchronous parameter will not be supported.')
   }
-  return new Part(config.host, config).loadRawTree(Part.listToRawTree(list));
+  return new Part(config).loadRawTree(Part.listToRawTree(list));
 };
 
 umd('Apisdk', Apisdk);
