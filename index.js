@@ -5,7 +5,8 @@ class API extends Function {
     this.path = path;
     this.globalConfig = Object.assign({ credentials: 'include' }, config);
     return new Proxy(this.bind(next => {
-      return new API((path + '/' + next).replace(/[^:][/]{2}/g, '/'), this.globalConfig);
+      if (path[path.length - 1] !== '/') next = '/' + next;
+      return new API((path + next).replace(/[^:][/]{2}/g, '/'), this.globalConfig);
     }), this);
   }
 
