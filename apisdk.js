@@ -30,7 +30,7 @@ Part.listToRawTree = function(list) {
   var root = {};
   var i, j, k, path, methods, name;
   for(i = 0; i < list.length; i++) {
-    if(!/^(\S+)\s+\/(\S+)$/.test(list[i])) {
+    if(!/^(\S+)\s+\/(\S*)$/.test(list[i])) {
       throw new Error('What\'s the fucking api defintion "' + list[i] + '"?');
     }
     methods = RegExp.$1;
