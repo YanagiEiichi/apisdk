@@ -75,7 +75,7 @@ Part.prototype.wrapHost = function(path) {
   host = host == null ? '/api' : host + '';
   if(host.charAt(host.length - 1) !== '/') host += '/';
   host = host.replace(/^(?!\w+:\/\/)(?!\/)/, '/');
-  return host + path.join('/');
+  return host + path.map(encodeURIComponent).join('/');
 };
 
 // Create child node that inherit from current node
