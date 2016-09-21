@@ -10,7 +10,7 @@
     "url": "git+https://github.com/YanagiEiichi/apisdk.git"
   },
   "author": "YanagiEiichi",
-  "license": "MIC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/YanagiEiichi/apisdk/issues"
   },
