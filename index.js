@@ -14,12 +14,20 @@ class API extends Function {
     if (!/^(?:get|post|delete|put|patch)$/.test(key)) return base(key);
     return config => {
       config = Object.assign({ method: key }, this.globalConfig, config);
+      // Convert request body to JSON
+      if (typeof config.body === 'object' && !(config.body instanceof Blob) && !(config.body instanceof FormData)) {
+        config.body = JSON.stringify(config.body);
+        let headers = new Headers(config.headers || {});
+        if (!headers.has('Content-Type')) headers.append('Content-Type', 'application/json');
+        config.headers = headers;
+      }
+      // Request actually
       return fetch(this.path, config).then(response => {
-        const type = /\bjson\b/.test(response.headers.get('content-type')) ? 'json' : 'text';
+        const type = /\bjson\b/.test(response.headers.get('Content-Type')) ? 'json' : 'text';
         switch (true) {
           case response.status === 204: return null;
           case response.status < 400: return response[type]();
-          default: response[type]().then(result => { throw result; });
+          default: return response[type]().then(result => Promise.reject(result));
         }
       });
     };
