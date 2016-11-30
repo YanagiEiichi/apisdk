@@ -13,7 +13,7 @@ class API extends Function {
   get(base, key) {
     if (!/^(?:get|post|delete|put|patch)$/.test(key)) return base(key);
     return config => {
-      config = Object.assign({ method: key }, this.globalConfig, config);
+      config = Object.assign({ method: key.toUpperCase() }, this.globalConfig, config);
       // Convert request body to JSON
       if (typeof config.body === 'object' && !(config.body instanceof Blob) && !(config.body instanceof FormData)) {
         config.body = JSON.stringify(config.body);
