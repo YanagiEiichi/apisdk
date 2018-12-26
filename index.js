@@ -27,7 +27,8 @@ class API extends Function { // eslint-disable-line no-unused-vars
       Object.defineProperty(response, 'auto', {
         configurable: true,
         async value() {
-          const type = this.headers.get('Content-Type').match(/\b(json|text)\b/g).sort()[0] || 'blob';
+          const mime = this.headers.get('Content-Type') || 'unknown';
+          const type = mime.match(/\b(json|text|$)\b/g).filter(Boolean).sort()[0] || 'blob';
           switch (true) {
             case this.status === 204: return null;
             case this.ok: return this[type]();

@@ -1,0 +1,12 @@
+<script src="/tester.js"></script>
+<script src="/index.js"></script>
+<script>
+let api = new API('.');
+api['test.json'].get({ rawResponse: true }).then(async response => {
+  let result = await response.auto();
+  Tester.assert(response.ok);
+  Tester.assert(response.status === 200);
+  Tester.assert(result.text === 'apisdk');
+  Tester.feedback(true);
+});
+</script>

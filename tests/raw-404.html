@@ -1,0 +1,8 @@
+<script src="/tester.js"></script>
+<script src="/index.js"></script>
+<script>
+let api = new API('.');
+api.what_the_fuck.get({ rawResponse: true }).then(response => {
+  Tester.feedback(response.status === 404);
+});
+</script>
