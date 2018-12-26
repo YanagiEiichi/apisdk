@@ -1,19 +1,25 @@
 {
   "name": "apisdk",
-  "version": "2.0.4",
+  "version": "2.1.0",
   "description": "APISDK for ES6",
   "main": "index.js",
   "scripts": {
-    "test": "echo hehe"
+    "test": "ui-tester-start tests",
+    "lint": "eslint . --fix"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/YanagiEiichi/apisdk.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/YanagiEiichi/apisdk/issues"
   },
-  "homepage": "https://github.com/YanagiEiichi/apisdk"
+  "homepage": "https://github.com/YanagiEiichi/apisdk",
+  "devDependencies": {
+    "eslint": "^5.11.0",
+    "eslint-config-elemefe": "^0.3.0",
+    "ui-tester": "^1.2.2"
+  }
 }

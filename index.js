@@ -1,4 +1,4 @@
-class API extends Function {
+class API extends Function { // eslint-disable-line no-unused-vars
 
   constructor(path = '/', config) {
     super('next', 'return this(next)');
@@ -12,7 +12,7 @@ class API extends Function {
 
   get(base, key) {
     if (!/^(?:get|post|delete|put|patch)$/.test(key)) return base(key);
-    return config => {
+    return async config => {
       config = Object.assign({ method: key.toUpperCase() }, this.globalConfig, config);
       // Convert request body to JSON
       if (typeof config.body === 'object' && !(config.body instanceof Blob) && !(config.body instanceof FormData)) {
@@ -22,14 +22,20 @@ class API extends Function {
         config.headers = headers;
       }
       // Request actually
-      return fetch(this.path, config).then(response => {
-        const type = /\bjson\b/.test(response.headers.get('Content-Type')) ? 'json' : 'text';
-        switch (true) {
-          case response.status === 204: return null;
-          case response.status < 400: return response[type]();
-          default: return response[type]().then(result => Promise.reject(result));
+      let response = await fetch(this.path, config);
+      // Registry an "auto" method
+      Object.defineProperty(response, 'auto', {
+        configurable: true,
+        async value() {
+          const type = this.headers.get('Content-Type').match(/\b(json|text)\b/g).sort()[0] || 'blob';
+          switch (true) {
+            case this.status === 204: return null;
+            case this.ok: return this[type]();
+            default: throw await this[type]();
+          }
         }
       });
+      return config.rawResponse ? response : response.auto();
     };
   }
 

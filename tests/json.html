@@ -1,0 +1,8 @@
+<script src="/tester.js"></script>
+<script src="/index.js"></script>
+<script>
+let api = new API('.');
+api['test.json'].get().then(result => {
+  Tester.feedback(result.text === 'apisdk');
+});
+</script>
