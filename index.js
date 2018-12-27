@@ -1,5 +1,5 @@
 class API extends Function { // eslint-disable-line no-unused-vars
-
+  
   constructor(path = '/', config) {
     super('next', 'return this(next)');
     this.path = path;
@@ -23,21 +23,19 @@ class API extends Function { // eslint-disable-line no-unused-vars
       }
       // Request actually
       let response = await fetch(this.path, config);
-      // Registry an "auto" method
       Object.defineProperty(response, 'auto', {
         configurable: true,
         async value() {
+          if (this.status === 204) return null;
           const mime = this.headers.get('Content-Type') || 'unknown';
           const type = mime.match(/\b(json|text|$)\b/g).filter(Boolean).sort()[0] || 'blob';
-          switch (true) {
-            case this.status === 204: return null;
-            case this.ok: return this[type]();
-            default: throw await this[type]();
-          }
+          return this[type]();
         }
       });
-      return config.rawResponse ? response : response.auto();
+      if (config.rawResponse) return response;
+      if (response.ok) return response.auto();
+      throw await response.auto();
     };
-  }
-
+  } 
+  
 }
