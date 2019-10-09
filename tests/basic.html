@@ -1,6 +1,6 @@
 <script src="/tester.js"></script>
-<script src="/index.js"></script>
-<script>
+<script type="module">
+import API from '/index.js';
 let api = new API();
 api = location.pathname.match(/[^/]+/g).reduce((api, name) => api[name], api);
 api.get().then(result => {

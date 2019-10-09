@@ -1,6 +1,6 @@
 <script src="/tester.js"></script>
-<script src="/index.js"></script>
-<script>
+<script type="module">
+import API from '/index.js';
 let api = new API('.');
 api['test.json'].get().then(result => {
   Tester.feedback(result.text === 'apisdk');

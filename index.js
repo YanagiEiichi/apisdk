@@ -1,4 +1,4 @@
-class API extends Function { // eslint-disable-line no-unused-vars
+export default class API extends Function { // eslint-disable-line no-unused-vars
   
   constructor(path = '/', config) {
     super('next', 'return this(next)');
